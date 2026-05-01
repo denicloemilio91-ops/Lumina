@@ -57,7 +57,6 @@
           #070914 55%,
           #030710 100%
         );
-        min-background: #070914;
         color: var(--txt);
         min-height: 100vh;
         overflow-x: hidden;
@@ -668,6 +667,73 @@
         cursor: not-allowed;
       }
 
+      .btn-secondary {
+        width: 100%;
+        padding: 13px 18px;
+        background: transparent;
+        border: 1px solid var(--brd);
+        border-radius: var(--r-m);
+        color: var(--txt-2);
+        font-family: "Nunito", sans-serif;
+        font-size: 13.5px;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-top: 10px;
+      }
+      .btn-secondary:hover {
+        background: var(--card-hov);
+        border-color: rgba(255, 255, 255, 0.18);
+        color: var(--txt);
+      }
+
+      .streak-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        border: 1px solid rgba(122, 158, 207, 0.35);
+        border-radius: 999px;
+        color: rgba(154, 184, 224, 0.95);
+        font-size: 12px;
+        font-weight: 600;
+        margin-top: 14px;
+        background: rgba(122, 158, 207, 0.08);
+      }
+      .streak-pill strong {
+        color: #dfe9ff;
+        font-weight: 700;
+      }
+
+      .react-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: -0.4rem;
+        margin-bottom: 1.1rem;
+        position: relative;
+        z-index: 1;
+      }
+      .react-btn {
+        flex: 1;
+        min-width: 120px;
+        padding: 10px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--brd);
+        background: rgba(255, 255, 255, 0.02);
+        color: var(--txt-2);
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .react-btn:hover {
+        background: var(--card-hov);
+        border-color: rgba(255, 255, 255, 0.18);
+        color: var(--txt);
+      }
+
       /* Bottom actions */
       .bottom-row {
         display: flex;
@@ -734,6 +800,56 @@
       }
       .saved-item:hover {
         border-color: var(--brd-gold);
+      }
+
+      .saved-item .saved-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 10px;
+        font-family: "Nunito", sans-serif;
+        font-style: normal;
+      }
+      .saved-item .saved-meta .saved-date {
+        font-size: 10.5px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--txt-3);
+        font-weight: 700;
+      }
+      .saved-item .saved-meta .saved-chip {
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(212, 164, 90, 0.25);
+        color: rgba(212, 164, 90, 0.95);
+        background: rgba(212, 164, 90, 0.06);
+        white-space: nowrap;
+      }
+      .saved-item .saved-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+        font-family: "Nunito", sans-serif;
+        font-style: normal;
+      }
+      .saved-item .mini-btn {
+        flex: 1;
+        padding: 9px 10px;
+        border-radius: 12px;
+        border: 1px solid var(--brd);
+        background: transparent;
+        color: var(--txt-3);
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .saved-item .mini-btn:hover {
+        background: var(--card-hov);
+        border-color: rgba(255, 255, 255, 0.18);
+        color: var(--txt);
       }
 
       /* Toast */
@@ -831,6 +947,9 @@
           Dis-moi comment tu te sens aujourd'hui — J'ai préparé des messages de
           réconfort et de force, pensés pour toi..
         </div>
+        <div class="streak-pill" id="streak-pill" style="display: none">
+          ✦ Streak: <strong id="streak-val">0</strong> jours
+        </div>
       </div>
 
       <!-- Moment -->
@@ -922,6 +1041,9 @@
       <button class="btn-primary" id="btn-gen" onclick="generate()">
         Aller à mon message &nbsp;✦
       </button>
+      <button class="btn-secondary" id="btn-daily" onclick="generateDaily()">
+        Message du jour &nbsp;✦
+      </button>
     </div>
 
     <!-- ══════════════════════════════════════════
@@ -951,11 +1073,21 @@
         <div class="msg-cat" id="msg-cat">✦ Message</div>
         <div class="msg-txt" id="msg-txt"></div>
         <div class="msg-divider"></div>
+        <div class="react-row" id="react-row">
+          <button class="react-btn" onclick="react('helped')">Ça m'aide ✦</button>
+          <button class="react-btn" onclick="react('too_intense')">
+            Trop intense
+          </button>
+          <button class="react-btn" onclick="react('more_concrete')">
+            Plus concret
+          </button>
+        </div>
         <div class="msg-actions">
           <button class="btn-ghost" id="btn-copy" onclick="copyMsg()">
             Copier
           </button>
           <button class="btn-ghost" onclick="saveMsg()">Sauvegarder</button>
+          <button class="btn-ghost" onclick="exportCurrent()">Export PNG</button>
           <button class="btn-regen" id="btn-regen" onclick="generate()">
             Regénérer ↻
           </button>
@@ -997,8 +1129,26 @@
         intensite: 3,
         contexte: "",
         currentMsg: "",
+        currentMeta: null,
+        lastWasDaily: false,
         saved: [],
         savedVisible: false,
+        prefs: {
+          softness: 0,
+          concreteness: 0,
+          liked: 0,
+        },
+        streak: {
+          count: 0,
+          lastDay: "",
+        },
+      };
+
+      const STORAGE = {
+        saved: "lumiere_saved_v2",
+        prefs: "lumiere_prefs_v1",
+        daily: "lumiere_daily_v1",
+        streak: "lumiere_streak_v1",
       };
 
       const NAME_LIST = [
@@ -1024,6 +1174,78 @@
         soir: "🌙 Clôture de journée",
         crise: "🌧️ Réconfort émotionnel",
       };
+
+      function getLocalDayKey(d = new Date()) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+      }
+
+      function safeJSONParse(raw, fallback) {
+        try {
+          return raw ? JSON.parse(raw) : fallback;
+        } catch {
+          return fallback;
+        }
+      }
+
+      function persist(key, value) {
+        try {
+          localStorage.setItem(key, JSON.stringify(value));
+        } catch {}
+      }
+
+      function renderStreak() {
+        const pill = document.getElementById("streak-pill");
+        const val = document.getElementById("streak-val");
+        const count = Math.max(0, Number(S.streak.count || 0));
+        val.textContent = String(count);
+        pill.style.display = count > 0 ? "inline-flex" : "none";
+      }
+
+      function loadPersisted() {
+        const savedRaw = safeJSONParse(localStorage.getItem(STORAGE.saved), []);
+        S.saved = Array.isArray(savedRaw)
+          ? savedRaw
+              .map((it) => {
+                if (!it) return null;
+                if (typeof it === "string") {
+                  return {
+                    id: crypto?.randomUUID?.() || String(Date.now()) + Math.random(),
+                    text: it,
+                    category: "matin",
+                    day: "",
+                    daily: false,
+                    ts: Date.now(),
+                  };
+                }
+                if (typeof it === "object" && it.text) return it;
+                return null;
+              })
+              .filter(Boolean)
+          : [];
+
+        const prefs = safeJSONParse(localStorage.getItem(STORAGE.prefs), null);
+        if (prefs && typeof prefs === "object") {
+          S.prefs = {
+            softness: Number(prefs.softness || 0),
+            concreteness: Number(prefs.concreteness || 0),
+            liked: Number(prefs.liked || 0),
+          };
+        }
+
+        const streak = safeJSONParse(localStorage.getItem(STORAGE.streak), null);
+        if (streak && typeof streak === "object") {
+          S.streak = {
+            count: Number(streak.count || 0),
+            lastDay: String(streak.lastDay || ""),
+          };
+        }
+
+        renderStreak();
+        renderSaved();
+      }
 
       // ══════════════════════════════════════
       // STARFIELD
@@ -1096,6 +1318,7 @@
       }
       const timeCtx = getTimeCtx();
       document.getElementById("time-label").textContent = timeCtx.label;
+      loadPersisted();
 
       // ══════════════════════════════════════
       // NAVIGATION
@@ -1191,7 +1414,7 @@
       // ══════════════════════════════════════
       // SCREEN 3: GENERATE
       // ══════════════════════════════════════
-      async function generate() {
+      async function generate(opts = {}) {
         if (!S.moment) {
           showToast("Choisis d'abord ton moment ✦");
           return;
@@ -1219,6 +1442,8 @@
               etats: S.etats,
               intensite: S.intensite,
               contexte: S.contexte,
+              prefs: S.prefs,
+              daily: !!opts.daily,
             }),
           });
 
@@ -1233,13 +1458,84 @@
             throw new Error(detail ? `API: ${detail}` : `API: ${res.status}`);
           }
           const data = await res.json();
+          S.lastWasDaily = !!opts.daily;
+          S.currentMeta = {
+            category: data.category || S.moment,
+            day: getLocalDayKey(),
+            daily: !!opts.daily,
+          };
           showMsg(data.message, data.category || S.moment);
+
+          if (opts.daily) {
+            persist(STORAGE.daily, {
+              day: getLocalDayKey(),
+              message: data.message,
+              category: data.category || S.moment,
+              ts: Date.now(),
+            });
+            bumpStreakForToday();
+          }
         } catch (err) {
           console.error(err);
           showToast("Mode hors-ligne: message prédéfini");
           const fallback = getFallback();
+          S.lastWasDaily = !!opts.daily;
+          S.currentMeta = {
+            category: S.moment,
+            day: getLocalDayKey(),
+            daily: !!opts.daily,
+          };
           showMsg(fallback, S.moment);
+
+          if (opts.daily) {
+            persist(STORAGE.daily, {
+              day: getLocalDayKey(),
+              message: fallback,
+              category: S.moment,
+              ts: Date.now(),
+              fallback: true,
+            });
+            bumpStreakForToday();
+          }
         }
+      }
+
+      function bumpStreakForToday() {
+        const today = getLocalDayKey();
+        const yesterday = getLocalDayKey(new Date(Date.now() - 86400000));
+        if (S.streak.lastDay === today) return;
+        if (S.streak.lastDay === yesterday) {
+          S.streak.count = (S.streak.count || 0) + 1;
+        } else {
+          S.streak.count = 1;
+        }
+        S.streak.lastDay = today;
+        persist(STORAGE.streak, S.streak);
+        renderStreak();
+      }
+
+      function generateDaily() {
+        if (!S.moment) {
+          showToast("Choisis d'abord ton moment ✦");
+          return;
+        }
+        const daily = safeJSONParse(localStorage.getItem(STORAGE.daily), null);
+        const today = getLocalDayKey();
+        if (daily && daily.day === today && daily.message) {
+          S.lastWasDaily = true;
+          S.currentMeta = {
+            category: daily.category || S.moment,
+            day: today,
+            daily: true,
+          };
+          goTo("s-message");
+          document.getElementById("loader").style.display = "none";
+          showMsg(daily.message, daily.category || S.moment);
+          bumpStreakForToday();
+          showToast("Message du jour ✦");
+          return;
+        }
+        generate({ daily: true });
       }
 
       function showMsg(text, category) {
@@ -1293,11 +1589,24 @@
 
       function saveMsg() {
         if (!S.currentMsg) return;
-        if (S.saved.includes(S.currentMsg)) {
+        if (S.saved.some((x) => x?.text === S.currentMsg)) {
           showToast("Déjà sauvegardé");
           return;
         }
-        S.saved.unshift(S.currentMsg);
+        const meta = S.currentMeta || {
+          category: S.moment,
+          day: getLocalDayKey(),
+          daily: false,
+        };
+        S.saved.unshift({
+          id: crypto?.randomUUID?.() || String(Date.now()) + Math.random(),
+          text: S.currentMsg,
+          category: meta.category || S.moment,
+          day: meta.day || getLocalDayKey(),
+          daily: !!meta.daily,
+          ts: Date.now(),
+        });
+        persist(STORAGE.saved, S.saved);
         renderSaved();
         showToast("Sauvegardé ✦");
       }
@@ -1321,11 +1630,27 @@
 
         const list = document.getElementById("saved-list");
         list.innerHTML = S.saved
-          .map(
-            (m) => `
-    <div class="saved-item" onclick="reuseMsg(this)" data-msg="${m.replace(/"/g, "&quot;")}">${m}</div>
-  `,
-          )
+          .map((c) => {
+            const text = String(c.text || "");
+            const day = c.day ? String(c.day) : "";
+            const chip = c.daily
+              ? "Message du jour"
+              : CAT_LABELS[c.category]?.replace(/^.. /, "") || "Message";
+            const safe = text.replace(/"/g, "&quot;");
+            return `
+    <div class="saved-item" onclick="reuseCard('${c.id}')">
+      <div class="saved-meta">
+        <div class="saved-date">${day || "—"}</div>
+        <div class="saved-chip">${chip}</div>
+      </div>
+      <div class="saved-text" data-msg="${safe}">${text}</div>
+      <div class="saved-actions">
+        <button class="mini-btn" onclick="event.stopPropagation(); exportCardById('${c.id}')">PNG</button>
+        <button class="mini-btn" onclick="event.stopPropagation(); deleteCard('${c.id}')">Suppr.</button>
+      </div>
+    </div>
+  `;
+          })
           .join("");
 
         if (S.savedVisible) {
@@ -1333,12 +1658,26 @@
         }
       }
 
-      function reuseMsg(el) {
-        const msg = el.dataset.msg;
+      function reuseCard(id) {
+        const card = S.saved.find((x) => x.id === id);
+        if (!card) return;
+        const msg = String(card.text || "");
+        S.currentMeta = {
+          category: card.category || S.moment,
+          day: card.day || "",
+          daily: !!card.daily,
+        };
         document.getElementById("msg-txt").textContent = msg;
         S.currentMsg = msg;
         window.scrollTo(0, 0);
         showToast("Message rechargé");
+      }
+
+      function deleteCard(id) {
+        S.saved = S.saved.filter((x) => x.id !== id);
+        persist(STORAGE.saved, S.saved);
+        renderSaved();
+        showToast("Supprimé");
       }
 
       function newSession() {
@@ -1354,6 +1693,168 @@
         document.getElementById("int-slider").value = 3;
         updateInt(3);
         goTo("s-welcome");
+      }
+
+      function react(kind) {
+        if (kind === "too_intense") {
+          S.prefs.softness = Math.min(10, (S.prefs.softness || 0) + 1);
+          persist(STORAGE.prefs, S.prefs);
+          showToast("Ok — plus doux");
+          if (S.currentMsg) generate();
+          return;
+        }
+        if (kind === "more_concrete") {
+          S.prefs.concreteness = Math.min(10, (S.prefs.concreteness || 0) + 1);
+          persist(STORAGE.prefs, S.prefs);
+          showToast("Ok — plus concret");
+          if (S.currentMsg) generate();
+          return;
+        }
+        if (kind === "helped") {
+          S.prefs.liked = Math.min(50, (S.prefs.liked || 0) + 1);
+          persist(STORAGE.prefs, S.prefs);
+          showToast("Noté ✦");
+          return;
+        }
+      }
+
+      function exportCurrent() {
+        if (!S.currentMsg) return;
+        const meta = S.currentMeta || {
+          category: S.moment,
+          day: getLocalDayKey(),
+          daily: false,
+        };
+        exportCard({
+          text: S.currentMsg,
+          category: meta.category || S.moment,
+          day: meta.day || getLocalDayKey(),
+          daily: !!meta.daily,
+        });
+      }
+
+      function exportCardById(id) {
+        const card = S.saved.find((x) => x.id === id);
+        if (!card) return;
+        exportCard(card);
+      }
+
+      function exportCard(card) {
+        const W = 1080;
+        const H = 1920;
+        const cnv = document.createElement("canvas");
+        cnv.width = W;
+        cnv.height = H;
+        const cx = cnv.getContext("2d");
+
+        const g = cx.createRadialGradient(
+          W * 0.3,
+          H * 0.18,
+          30,
+          W * 0.5,
+          H * 0.55,
+          H,
+        );
+        g.addColorStop(0, "#0e1a3a");
+        g.addColorStop(0.55, "#070914");
+        g.addColorStop(1, "#030710");
+        cx.fillStyle = g;
+        cx.fillRect(0, 0, W, H);
+
+        cx.fillStyle = "rgba(212,164,90,0.10)";
+        cx.beginPath();
+        cx.arc(W * 0.18, H * 0.18, 220, 0, Math.PI * 2);
+        cx.fill();
+
+        cx.fillStyle = "rgba(122,158,207,0.08)";
+        cx.beginPath();
+        cx.arc(W * 0.86, H * 0.22, 260, 0, Math.PI * 2);
+        cx.fill();
+
+        cx.fillStyle = "rgba(245,237,216,0.92)";
+        cx.font = "72px 'Cormorant Garamond'";
+        cx.fillText("Lumière", 90, 150);
+
+        const chip = card.daily ? "Message du jour" : "Message";
+        cx.font = "28px Nunito";
+        cx.fillStyle = "rgba(212,164,90,0.92)";
+        cx.fillText(`✦ ${chip}`, 90, 210);
+
+        cx.fillStyle = "rgba(136,150,184,0.9)";
+        cx.font = "26px Nunito";
+        cx.fillText(card.day ? String(card.day) : "", 90, 255);
+
+        const pad = 90;
+        const x = pad;
+        const y = 330;
+        const w = W - pad * 2;
+        const h = H - y - 220;
+
+        cx.fillStyle = "rgba(13,19,39,0.92)";
+        roundRect(cx, x, y, w, h, 40, true, false);
+        cx.strokeStyle = "rgba(255,255,255,0.08)";
+        cx.lineWidth = 2;
+        roundRect(cx, x, y, w, h, 40, false, true);
+
+        cx.fillStyle = "rgba(212,164,90,0.10)";
+        cx.font = "170px 'Cormorant Garamond'";
+        cx.fillText("“", x + 35, y + 170);
+
+        const text = String(card.text || "");
+        cx.fillStyle = "rgba(237,233,224,0.96)";
+        cx.font = "46px 'Cormorant Garamond'";
+        cx.textBaseline = "top";
+        const lines = wrapText(cx, text, w - 140, 11);
+        let ty = y + 150;
+        for (const line of lines) {
+          cx.fillText(line, x + 70, ty);
+          ty += 62;
+        }
+
+        cx.fillStyle = "rgba(136,150,184,0.85)";
+        cx.font = "26px Nunito";
+        cx.fillText("✦ Lumière", x, H - 120);
+
+        const a = document.createElement("a");
+        const fileDay = (card.day || getLocalDayKey()).replace(/[^0-9-]/g, "");
+        a.download = `lumiere-${fileDay}.png`;
+        a.href = cnv.toDataURL("image/png");
+        a.click();
+        showToast("Export PNG ✓");
+      }
+
+      function roundRect(cx, x, y, w, h, r, fill, stroke) {
+        cx.beginPath();
+        cx.moveTo(x + r, y);
+        cx.arcTo(x + w, y, x + w, y + h, r);
+        cx.arcTo(x + w, y + h, x, y + h, r);
+        cx.arcTo(x, y + h, x, y, r);
+        cx.arcTo(x, y, x + w, y, r);
+        cx.closePath();
+        if (fill) cx.fill();
+        if (stroke) cx.stroke();
+      }
+
+      function wrapText(cx, text, maxWidth, maxLines) {
+        const words = text.split(/\s+/).filter(Boolean);
+        const lines = [];
+        let line = "";
+        for (const word of words) {
+          const test = line ? line + " " + word : word;
+          if (cx.measureText(test).width <= maxWidth) {
+            line = test;
+          } else {
+            if (line) lines.push(line);
+            line = word;
+            if (lines.length >= maxLines - 1) break;
+          }
+        }
+        if (line && lines.length < maxLines) lines.push(line);
+        if (words.length && lines.length === maxLines) {
+          const last = lines[maxLines - 1];
+          lines[maxLines - 1] = last.replace(/[.?!…]*$/, "") + "…";
+        }
+        return lines;
       }
 
       // ══════════════════════════════════════

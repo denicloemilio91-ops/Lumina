@@ -66,7 +66,15 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { name, moment, etats = [], intensite = 3, contexte = '' } = req.body || {};
+  const {
+    name,
+    moment,
+    etats = [],
+    intensite = 3,
+    contexte = '',
+    prefs = {},
+    daily = false
+  } = req.body || {};
 
   // Validation minimale
   if (!name || !moment) {
@@ -82,7 +90,17 @@ module.exports = async function handler(req, res) {
   const category = selectCategory(moment, etats, intensite);
 
   // Prompt utilisateur
-  const userPrompt = buildPrompt({ name, moment, etats, etatsDesc, intensite, contexte, category });
+  const userPrompt = buildPrompt({
+    name,
+    moment,
+    etats,
+    etatsDesc,
+    intensite,
+    contexte,
+    category,
+    prefs,
+    daily
+  });
 
   try {
     const apiKey = process.env.GROQ_API_KEY;
@@ -93,6 +111,10 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    const softness = clampInt(prefs?.softness, 0, 10);
+    const concreteness = clampInt(prefs?.concreteness, 0, 10);
+    const temperature = daily ? 0.72 : (softness >= 4 ? 0.75 : (concreteness >= 4 ? 0.8 : 0.85));
+
     const groqRes = await fetch(GROQ_CHAT_URL, {
       method: 'POST',
       headers: {
@@ -102,7 +124,7 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({
         model: GROQ_MODEL,
         max_tokens: 300,
-        temperature: 0.85,
+        temperature,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
           { role: 'user', content: userPrompt }
@@ -164,12 +186,22 @@ function selectCategory(moment, etats, intensite) {
 }
 
 // ── Construction du prompt ────────────────────────────
-function buildPrompt({ name, moment, etats, etatsDesc, intensite, contexte, category }) {
+function buildPrompt({ name, moment, etats, etatsDesc, intensite, contexte, category, prefs, daily }) {
   const catLabel = CATEGORIES[category] || CATEGORIES[moment];
 
   const etatsStr = etats.length > 0
     ? etats.join(', ')
     : 'aucun état particulier spécifié';
+
+  const softness = clampInt(prefs?.softness, 0, 10);
+  const concreteness = clampInt(prefs?.concreteness, 0, 10);
+  const liked = clampInt(prefs?.liked, 0, 50);
+
+  const tuning = [];
+  if (softness >= 3) tuning.push('- Style demandé: plus doux, plus léger, moins intense émotionnellement');
+  if (concreteness >= 3) tuning.push('- Style demandé: plus concret, plus simple, moins poétique');
+  if (liked >= 5) tuning.push('- Conserve ce style global (la personne a indiqué que ça l’aide)');
+  if (daily) tuning.push('- Mode "message du jour": une seule pépite, très soignée, intemporelle, pas de répétitions inutiles');
 
   return `Génère un message de catégorie "${catLabel}" pour :
 
@@ -186,8 +218,15 @@ Instructions spécifiques :
 - Si intensité ≤ 2 : message léger, respirant, doux
 - Si contexte mentionné : intègre-le subtilement sans le répéter mot pour mot
 - Génère UN SEUL message, le meilleur possible
+${tuning.length ? '\nAjustements (préférences) :\n' + tuning.join('\n') : ''}
 
 Rappel format attendu : JSON valide uniquement.`;
+}
+
+function clampInt(v, min, max){
+  const n = Number.parseInt(v, 10);
+  if(Number.isNaN(n)) return min;
+  return Math.max(min, Math.min(max, n));
 }
 
 // ── Messages de fallback ───────────────────────────────
