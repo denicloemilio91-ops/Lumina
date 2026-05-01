@@ -1,0 +1,1372 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lumière — Ton espace de soutien quotidien</title>
+    <meta
+      name="description"
+      content="Des messages de réconfort et de motivation générés par IA, personnalisés pour toi chaque jour."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Nunito:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #07091500;
+        --bg-deep: #07091480;
+        --surface: #0d1327;
+        --card: rgba(255, 255, 255, 0.04);
+        --card-hov: rgba(255, 255, 255, 0.068);
+        --gold: #d4a45a;
+        --gold-lt: #e8c482;
+        --gold-glow: rgba(212, 164, 90, 0.18);
+        --moon: #7a9ecf;
+        --rose: #c48aaa;
+        --txt: #ede9e0;
+        --txt-2: #8896b8;
+        --txt-3: #3e4a6c;
+        --brd: rgba(255, 255, 255, 0.07);
+        --brd-gold: rgba(212, 164, 90, 0.28);
+        --r-s: 10px;
+        --r-m: 18px;
+        --r-l: 28px;
+        --r-xl: 40px;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "Nunito", sans-serif;
+        background: #07091480;
+        background: radial-gradient(
+          ellipse 120% 80% at 30% 10%,
+          #0e1a3a 0%,
+          #070914 55%,
+          #030710 100%
+        );
+        min-background: #070914;
+        color: var(--txt);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* ── Starfield ── */
+      #stars {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* ── Screens ── */
+      .screen {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        position: relative;
+        z-index: 1;
+        padding: 2.5rem 1.5rem 3rem;
+        animation: screenIn 0.55s cubic-bezier(0.22, 0.9, 0.36, 1) both;
+      }
+      .screen.active {
+        display: flex;
+      }
+
+      @keyframes screenIn {
+        from {
+          opacity: 0;
+          transform: translateY(18px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ══════════════════════════════
+       SCREEN 1 — WELCOME
+    ══════════════════════════════ */
+      #s-welcome {
+        justify-content: center;
+        text-align: center;
+        gap: 0;
+      }
+
+      .time-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 18px;
+        border: 1px solid var(--brd-gold);
+        border-radius: 50px;
+        font-size: 11.5px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 3rem;
+        animation: fadeUp 1s ease 0.1s both;
+      }
+      .time-pill .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--gold);
+        animation: blink 2.4s ease-in-out infinite;
+      }
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.25;
+        }
+      }
+
+      .logo {
+        font-family: "Cormorant Garamond", serif;
+        font-size: clamp(72px, 14vw, 128px);
+        font-weight: 300;
+        letter-spacing: -0.03em;
+        line-height: 0.9;
+        background: linear-gradient(
+          145deg,
+          #f5edd8 0%,
+          #d4a45a 45%,
+          #9ab8e0 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1.4rem;
+        animation: fadeUp 1s ease 0.25s both;
+      }
+
+      .tagline {
+        font-size: 15px;
+        font-weight: 300;
+        color: var(--txt-2);
+        line-height: 1.8;
+        max-width: 360px;
+        margin: 0 auto 3rem;
+        animation: fadeUp 1s ease 0.4s both;
+      }
+
+      .welcome-form {
+        width: 100%;
+        max-width: 340px;
+        animation: fadeUp 1s ease 0.55s both;
+      }
+
+      .lbl {
+        display: block;
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--txt-3);
+        margin-bottom: 10px;
+      }
+
+      .input {
+        width: 100%;
+        padding: 14px 20px;
+        background: var(--card);
+        border: 1px solid var(--brd);
+        border-radius: var(--r-m);
+        color: var(--txt);
+        font-family: "Nunito", sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        outline: none;
+        transition:
+          border-color 0.3s,
+          background 0.3s;
+        margin-bottom: 14px;
+      }
+      .input::placeholder {
+        color: var(--txt-3);
+      }
+      .input:focus {
+        border-color: var(--brd-gold);
+        background: rgba(212, 164, 90, 0.04);
+      }
+      .input.shake {
+        animation: shake 0.4s ease;
+        border-color: rgba(200, 90, 90, 0.6) !important;
+      }
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-6px);
+        }
+        75% {
+          transform: translateX(6px);
+        }
+      }
+
+      .btn-primary {
+        width: 100%;
+        padding: 15px 28px;
+        background: linear-gradient(135deg, var(--gold), #b88040);
+        border: none;
+        border-radius: var(--r-m);
+        color: #1a0f00;
+        font-family: "Nunito", sans-serif;
+        font-size: 14.5px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        transition:
+          transform 0.22s,
+          box-shadow 0.22s;
+      }
+      .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 35px rgba(212, 164, 90, 0.38);
+      }
+      .btn-primary:active:not(:disabled) {
+        transform: translateY(0);
+      }
+      .btn-primary:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      /* ══════════════════════════════
+       SCREEN 2 — CONFIG
+    ══════════════════════════════ */
+      #s-config {
+        max-width: 620px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      .back-btn {
+        align-self: flex-start;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 0;
+        background: none;
+        border: none;
+        color: var(--txt-3);
+        font-family: "Nunito", sans-serif;
+        font-size: 13px;
+        cursor: pointer;
+        transition: color 0.2s;
+        margin-bottom: 1.8rem;
+      }
+      .back-btn:hover {
+        color: var(--txt-2);
+      }
+
+      .nav-dots {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 2.2rem;
+      }
+      .nd {
+        width: 6px;
+        height: 6px;
+        border-radius: 3px;
+        background: var(--txt-3);
+        transition: all 0.35s;
+      }
+      .nd.on {
+        background: var(--gold);
+        width: 22px;
+      }
+
+      .cfg-header {
+        margin-bottom: 2.8rem;
+      }
+      .hello-name {
+        font-family: "Cormorant Garamond", serif;
+        font-size: clamp(34px, 7vw, 48px);
+        font-weight: 300;
+        letter-spacing: -0.01em;
+        margin-bottom: 6px;
+      }
+      .hello-sub {
+        font-size: 14px;
+        font-weight: 300;
+        color: var(--txt-2);
+        line-height: 1.6;
+      }
+
+      .sec {
+        margin-bottom: 2.6rem;
+      }
+
+      .sec-title {
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--txt-3);
+        margin-bottom: 14px;
+      }
+
+      /* Moment cards */
+      .moment-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+      @media (min-width: 500px) {
+        .moment-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+
+      .m-card {
+        padding: 18px 12px 16px;
+        background: var(--card);
+        border: 1px solid var(--brd);
+        border-radius: var(--r-m);
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.22s;
+        user-select: none;
+      }
+      .m-card:hover {
+        background: var(--card-hov);
+        border-color: rgba(255, 255, 255, 0.14);
+      }
+      .m-card.on {
+        background: rgba(212, 164, 90, 0.09);
+        border-color: var(--gold);
+      }
+      .m-icon {
+        font-size: 26px;
+        margin-bottom: 9px;
+      }
+      .m-lbl {
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--txt-2);
+      }
+      .m-card.on .m-lbl {
+        color: var(--gold);
+      }
+
+      /* État pills */
+      .etat-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .e-pill {
+        padding: 9px 16px;
+        background: var(--card);
+        border: 1px solid var(--brd);
+        border-radius: 50px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--txt-2);
+        cursor: pointer;
+        transition: all 0.2s;
+        user-select: none;
+      }
+      .e-pill:hover {
+        border-color: rgba(255, 255, 255, 0.18);
+        color: var(--txt);
+      }
+      .e-pill.on {
+        background: rgba(122, 158, 207, 0.12);
+        border-color: var(--moon);
+        color: var(--moon);
+      }
+
+      /* Intensity */
+      .int-val {
+        font-family: "Cormorant Garamond", serif;
+        font-size: 44px;
+        font-weight: 300;
+        color: var(--gold);
+        text-align: center;
+        line-height: 1;
+      }
+      .int-desc {
+        text-align: center;
+        font-size: 12px;
+        color: var(--txt-3);
+        margin-bottom: 14px;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        height: 4px;
+        -webkit-appearance: none;
+        appearance: none;
+        background: var(--brd);
+        border-radius: 2px;
+        outline: none;
+        cursor: pointer;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--gold);
+        border: 3px solid #07091480;
+        box-shadow: 0 0 0 2px var(--gold);
+        cursor: pointer;
+      }
+      .int-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+      }
+      .int-labels span {
+        font-size: 11px;
+        color: var(--txt-3);
+      }
+
+      /* Context */
+      .textarea {
+        width: 100%;
+        padding: 14px 18px;
+        background: var(--card);
+        border: 1px solid var(--brd);
+        border-radius: var(--r-m);
+        color: var(--txt);
+        font-family: "Nunito", sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.7;
+        resize: vertical;
+        min-height: 88px;
+        outline: none;
+        transition: border-color 0.3s;
+      }
+      .textarea::placeholder {
+        color: var(--txt-3);
+      }
+      .textarea:focus {
+        border-color: var(--brd-gold);
+      }
+
+      /* ══════════════════════════════
+       SCREEN 3 — MESSAGE
+    ══════════════════════════════ */
+      #s-message {
+        max-width: 580px;
+        margin: 0 auto;
+        width: 100%;
+        justify-content: flex-start;
+        padding-top: 2.5rem;
+      }
+
+      /* Loading */
+      .loader {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.6rem;
+        padding: 5rem 0 4rem;
+        width: 100%;
+      }
+      .loader-ring {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        border: 1.5px solid var(--brd);
+        border-top-color: var(--gold);
+        animation: spin 1.1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .loader-txt {
+        font-family: "Cormorant Garamond", serif;
+        font-size: 20px;
+        font-weight: 300;
+        font-style: italic;
+        color: var(--txt-2);
+      }
+      .loader-sub {
+        font-size: 12px;
+        color: var(--txt-3);
+        margin-top: -1rem;
+      }
+
+      /* Message card */
+      .msg-card {
+        background: var(--surface);
+        border: 1px solid var(--brd);
+        border-radius: var(--r-l);
+        padding: 2.4rem 2rem;
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        animation: msgIn 0.7s cubic-bezier(0.22, 0.9, 0.36, 1) both;
+      }
+      @keyframes msgIn {
+        from {
+          opacity: 0;
+          transform: scale(0.97) translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+
+      /* Glows inside card */
+      .msg-card::before {
+        content: "";
+        position: absolute;
+        top: -80px;
+        left: -80px;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(212, 164, 90, 0.07) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+      .msg-card::after {
+        content: "";
+        position: absolute;
+        bottom: -50px;
+        right: -50px;
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(122, 158, 207, 0.05) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+
+      .msg-deco {
+        position: absolute;
+        top: 0.8rem;
+        right: 1.4rem;
+        font-family: "Cormorant Garamond", serif;
+        font-size: 90px;
+        font-weight: 300;
+        color: rgba(212, 164, 90, 0.07);
+        line-height: 1;
+        user-select: none;
+      }
+
+      .msg-cat {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 5px 14px;
+        border: 1px solid var(--brd-gold);
+        border-radius: 50px;
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+        color: var(--gold);
+        text-transform: uppercase;
+        margin-bottom: 1.6rem;
+      }
+
+      .msg-txt {
+        font-family: "Cormorant Garamond", serif;
+        font-size: clamp(19px, 3.5vw, 25px);
+        font-weight: 300;
+        font-style: italic;
+        line-height: 1.75;
+        color: var(--txt);
+        margin-bottom: 2rem;
+        position: relative;
+        z-index: 1;
+      }
+
+      .msg-divider {
+        width: 36px;
+        height: 1px;
+        background: var(--brd-gold);
+        margin: 0 auto 1.6rem;
+      }
+
+      .msg-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .btn-ghost {
+        flex: 1;
+        min-width: 100px;
+        padding: 11px 14px;
+        background: transparent;
+        border: 1px solid var(--brd);
+        border-radius: var(--r-s);
+        color: var(--txt-2);
+        font-family: "Nunito", sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+      }
+      .btn-ghost:hover {
+        background: var(--card-hov);
+        border-color: rgba(255, 255, 255, 0.18);
+        color: var(--txt);
+      }
+      .btn-ghost.copied {
+        color: #7ac8a0;
+        border-color: rgba(122, 200, 160, 0.3);
+      }
+
+      .btn-regen {
+        flex: 1;
+        min-width: 100px;
+        padding: 11px 14px;
+        background: rgba(212, 164, 90, 0.1);
+        border: 1px solid var(--brd-gold);
+        border-radius: var(--r-s);
+        color: var(--gold);
+        font-family: "Nunito", sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+      }
+      .btn-regen:hover {
+        background: rgba(212, 164, 90, 0.16);
+      }
+      .btn-regen:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* Bottom actions */
+      .bottom-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 1.4rem;
+        width: 100%;
+      }
+      .link-btn {
+        background: none;
+        border: none;
+        color: var(--txt-3);
+        font-family: "Nunito", sans-serif;
+        font-size: 13px;
+        cursor: pointer;
+        transition: color 0.2s;
+        padding: 4px 0;
+      }
+      .link-btn:hover {
+        color: var(--txt-2);
+      }
+
+      /* Saved messages */
+      .saved-section {
+        width: 100%;
+        margin-top: 2rem;
+      }
+      .saved-hdr {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+      .saved-title {
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--txt-3);
+      }
+      .saved-count {
+        font-size: 11px;
+        color: var(--gold);
+        font-weight: 600;
+      }
+      .saved-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .saved-item {
+        padding: 14px 16px;
+        background: var(--card);
+        border: 1px solid var(--brd);
+        border-radius: var(--r-m);
+        font-family: "Cormorant Garamond", serif;
+        font-size: 15.5px;
+        font-style: italic;
+        font-weight: 300;
+        color: var(--txt-2);
+        line-height: 1.65;
+        cursor: pointer;
+        transition: border-color 0.2s;
+      }
+      .saved-item:hover {
+        border-color: var(--brd-gold);
+      }
+
+      /* Toast */
+      .toast {
+        position: fixed;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%) translateY(10px);
+        background: var(--surface);
+        border: 1px solid var(--brd-gold);
+        border-radius: 50px;
+        padding: 10px 26px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--gold);
+        z-index: 999;
+        opacity: 0;
+        transition:
+          opacity 0.3s,
+          transform 0.3s;
+        pointer-events: none;
+        white-space: nowrap;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      /* Animations */
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Responsive */
+      @media (max-width: 400px) {
+        .msg-actions {
+          flex-direction: column;
+        }
+        .btn-ghost,
+        .btn-regen {
+          min-width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="stars"></canvas>
+    <div class="toast" id="toast"></div>
+
+    <!-- ══════════════════════════════════════════
+     SCREEN 1 — BIENVENUE
+══════════════════════════════════════════ -->
+    <div class="screen active" id="s-welcome">
+      <div class="time-pill">
+        <span class="dot"></span>
+        <span id="time-label">Bonjour ✦</span>
+      </div>
+
+      <div class="logo">Lumière</div>
+
+      <p class="tagline">
+        Des messages de réconfort et de force,<br />
+        pensés pour toi.
+      </p>
+
+      <div class="welcome-form">
+        <button class="btn-primary" onclick="startApp()">
+          Commencer &nbsp;✦
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     SCREEN 2 — CONFIGURATION
+══════════════════════════════════════════ -->
+    <div class="screen" id="s-config">
+      <button class="back-btn" onclick="goTo('s-welcome')">← Retour</button>
+
+      <div class="nav-dots">
+        <div class="nd on"></div>
+        <div class="nd"></div>
+        <div class="nd"></div>
+      </div>
+
+      <div class="cfg-header">
+        <div class="hello-name" id="hello-name">Bonjour…</div>
+        <div class="hello-sub">
+          Dis-moi comment tu te sens aujourd'hui — J'ai préparé des messages de
+          réconfort et de force, pensés pour toi..
+        </div>
+      </div>
+
+      <!-- Moment -->
+      <div class="sec">
+        <div class="sec-title">Ton moment</div>
+        <div class="moment-grid">
+          <div class="m-card" data-moment="matin" onclick="pickMoment(this)">
+            <div class="m-icon">🌅</div>
+            <div class="m-lbl">Matin</div>
+          </div>
+          <div class="m-card" data-moment="journee" onclick="pickMoment(this)">
+            <div class="m-icon">☀️</div>
+            <div class="m-lbl">Journée</div>
+          </div>
+          <div class="m-card" data-moment="soir" onclick="pickMoment(this)">
+            <div class="m-icon">🌙</div>
+            <div class="m-lbl">Soir</div>
+          </div>
+          <div class="m-card" data-moment="crise" onclick="pickMoment(this)">
+            <div class="m-icon">🌧️</div>
+            <div class="m-lbl">Moment difficile</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- État émotionnel -->
+      <div class="sec">
+        <div class="sec-title">
+          Comment tu te sens ? (plusieurs choix possibles)
+        </div>
+        <div class="etat-wrap">
+          <div class="e-pill" data-e="fatigue" onclick="toggleE(this)">
+            Fatiguée
+          </div>
+          <div class="e-pill" data-e="stress" onclick="toggleE(this)">
+            Stressée
+          </div>
+          <div class="e-pill" data-e="tristesse" onclick="toggleE(this)">
+            Triste
+          </div>
+          <div class="e-pill" data-e="doute" onclick="toggleE(this)">
+            Dans le doute
+          </div>
+          <div class="e-pill" data-e="determination" onclick="toggleE(this)">
+            Déterminée
+          </div>
+          <div class="e-pill" data-e="depassee" onclick="toggleE(this)">
+            Dépassée
+          </div>
+          <div class="e-pill" data-e="reconfort" onclick="toggleE(this)">
+            Besoin de réconfort
+          </div>
+          <div class="e-pill" data-e="bien" onclick="toggleE(this)">
+            Ça va dans l'ensemble
+          </div>
+        </div>
+      </div>
+
+      <!-- Intensité -->
+      <div class="sec">
+        <div class="sec-title">Intensité de cet état</div>
+        <div class="int-val" id="int-val">3</div>
+        <div class="int-desc" id="int-desc">Modéré</div>
+        <input
+          type="range"
+          id="int-slider"
+          min="1"
+          max="5"
+          value="3"
+          step="1"
+          oninput="updateInt(this.value)"
+        />
+        <div class="int-labels">
+          <span>Très léger</span>
+          <span>Intense</span>
+        </div>
+      </div>
+
+      <!-- Contexte -->
+      <!-- <div class="sec">
+    <div class="sec-title">Contexte (optionnel)</div>
+    <textarea
+      class="textarea"
+      id="ctx-input"
+      placeholder="Ex : examens qui approchent, semaine très chargée, dispute, pression professionnelle…"
+    ></textarea>
+  </div> -->
+
+      <button class="btn-primary" id="btn-gen" onclick="generate()">
+        Générer mon message &nbsp;✦
+      </button>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     SCREEN 3 — MESSAGE
+══════════════════════════════════════════ -->
+    <div class="screen" id="s-message">
+      <button class="back-btn" onclick="goTo('s-config')">← Modifier</button>
+
+      <div class="nav-dots">
+        <div class="nd"></div>
+        <div class="nd"></div>
+        <div class="nd on"></div>
+      </div>
+
+      <!-- Loading -->
+      <div class="loader" id="loader">
+        <div class="loader-ring"></div>
+        <div class="loader-txt">Je prépare quelque chose pour toi…</div>
+        <div class="loader-sub">
+          Patience... je croise ton état, ton moment et ton contexte
+        </div>
+      </div>
+
+      <!-- Message affiché -->
+      <div class="msg-card" id="msg-card" style="display: none">
+        <div class="msg-deco">"</div>
+        <div class="msg-cat" id="msg-cat">✦ Message</div>
+        <div class="msg-txt" id="msg-txt"></div>
+        <div class="msg-divider"></div>
+        <div class="msg-actions">
+          <button class="btn-ghost" id="btn-copy" onclick="copyMsg()">
+            Copier
+          </button>
+          <button class="btn-ghost" onclick="saveMsg()">Sauvegarder</button>
+          <button class="btn-regen" id="btn-regen" onclick="generate()">
+            Regénérer ↻
+          </button>
+        </div>
+      </div>
+
+      <div class="bottom-row" id="bottom-row" style="display: none">
+        <button class="link-btn" onclick="newSession()">
+          ✦ Nouveau message
+        </button>
+        <button
+          class="link-btn"
+          id="saved-toggle"
+          onclick="toggleSaved()"
+          style="display: none"
+        >
+          Voir sauvegardés (<span id="saved-ct">0</span>)
+        </button>
+      </div>
+
+      <!-- Saved -->
+      <div class="saved-section" id="saved-section" style="display: none">
+        <div class="saved-hdr">
+          <div class="saved-title">Mes messages sauvegardés</div>
+          <div class="saved-count" id="saved-count-2"></div>
+        </div>
+        <div class="saved-list" id="saved-list"></div>
+      </div>
+    </div>
+
+    <script>
+      // ══════════════════════════════════════
+      // STATE
+      // ══════════════════════════════════════
+      const S = {
+        name: "",
+        moment: "",
+        etats: [],
+        intensite: 3,
+        contexte: "",
+        currentMsg: "",
+        saved: [],
+        savedVisible: false,
+      };
+
+      const NAME_LIST = [
+        "Océane❤️",
+        "Diandra🌹",
+        "Nounou❤️",
+        "Pouppée🌹",
+        "Générale ODO💪",
+      ];
+      const NAME_BAG_KEY = "lumiere_name_bag_v1";
+
+      const INT_LABELS = {
+        1: "Très léger",
+        2: "Léger",
+        3: "Modéré",
+        4: "Élevé",
+        5: "Très intense",
+      };
+
+      const CAT_LABELS = {
+        matin: "🌅 Ancrage du matin",
+        journee: "☀️ Soutien de journée",
+        soir: "🌙 Clôture de journée",
+        crise: "🌧️ Réconfort émotionnel",
+      };
+
+      // ══════════════════════════════════════
+      // STARFIELD
+      // ══════════════════════════════════════
+      (function () {
+        const cv = document.getElementById("stars");
+        const cx = cv.getContext("2d");
+        let stars = [],
+          W,
+          H;
+
+        function resize() {
+          W = cv.width = innerWidth;
+          H = cv.height = innerHeight;
+        }
+        function make() {
+          stars = [];
+          const n = Math.floor((W * H) / 7000);
+          for (let i = 0; i < n; i++)
+            stars.push({
+              x: Math.random() * W,
+              y: Math.random() * H,
+              r: Math.random() * 1.1 + 0.15,
+              a: Math.random() * 0.9 + 0.1,
+              sp: Math.random() * 0.006 + 0.003,
+              ph: Math.random() * Math.PI * 2,
+            });
+        }
+        function draw() {
+          cx.clearRect(0, 0, W, H);
+          const t = Date.now() / 1000;
+          for (const s of stars) {
+            const a = s.a * (0.55 + 0.45 * Math.sin(t * s.sp * 10 + s.ph));
+            cx.beginPath();
+            cx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            cx.fillStyle = `rgba(215,225,245,${a})`;
+            cx.fill();
+          }
+          requestAnimationFrame(draw);
+        }
+        resize();
+        make();
+        draw();
+        window.addEventListener("resize", () => {
+          resize();
+          make();
+        });
+      })();
+
+      // ══════════════════════════════════════
+      // INIT TIME
+      // ══════════════════════════════════════
+      function getTimeCtx() {
+        const h = new Date().getHours();
+        if (h >= 5 && h < 12)
+          return {
+            label: "Bonne matinée ✦",
+            moment: "matin",
+            greet: "Bonjour",
+          };
+        if (h >= 12 && h < 18)
+          return {
+            label: "Bon après-midi ✦",
+            moment: "journee",
+            greet: "Bon après-midi",
+          };
+        if (h >= 18 && h < 23)
+          return { label: "Bonne soirée ✦", moment: "soir", greet: "Bonsoir" };
+        return { label: "Bonne nuit ✦", moment: "soir", greet: "Bonne nuit" };
+      }
+      const timeCtx = getTimeCtx();
+      document.getElementById("time-label").textContent = timeCtx.label;
+
+      // ══════════════════════════════════════
+      // NAVIGATION
+      // ══════════════════════════════════════
+      function goTo(id) {
+        document
+          .querySelectorAll(".screen")
+          .forEach((s) => s.classList.remove("active"));
+        const sc = document.getElementById(id);
+        sc.classList.add("active");
+        sc.style.animation = "none";
+        sc.offsetHeight; // reflow
+        sc.style.animation = "";
+        window.scrollTo(0, 0);
+      }
+
+      // ══════════════════════════════════════
+      // SCREEN 1: START
+      // ══════════════════════════════════════
+      function startApp() {
+        const name = pickName();
+        S.name = name;
+        document.getElementById("hello-name").textContent =
+          `${timeCtx.greet}, ${name}`;
+
+        // Auto-sélectionner le moment
+        document
+          .querySelectorAll(".m-card")
+          .forEach((c) => c.classList.remove("on"));
+        const auto = document.querySelector(
+          `[data-moment="${timeCtx.moment}"]`,
+        );
+        if (auto) {
+          auto.classList.add("on");
+          S.moment = timeCtx.moment;
+        }
+
+        goTo("s-config");
+      }
+
+      function pickName() {
+        let bag = [];
+        try {
+          const raw = localStorage.getItem(NAME_BAG_KEY);
+          const parsed = raw ? JSON.parse(raw) : null;
+          if (Array.isArray(parsed))
+            bag = parsed.filter((n) => NAME_LIST.includes(n));
+        } catch {}
+
+        if (bag.length === 0) {
+          bag = [...NAME_LIST];
+          for (let i = bag.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [bag[i], bag[j]] = [bag[j], bag[i]];
+          }
+        }
+
+        const chosen = bag.shift();
+        try {
+          localStorage.setItem(NAME_BAG_KEY, JSON.stringify(bag));
+        } catch {}
+        return chosen || NAME_LIST[0];
+      }
+
+      // ══════════════════════════════════════
+      // SCREEN 2: CONFIG
+      // ══════════════════════════════════════
+      function pickMoment(el) {
+        document
+          .querySelectorAll(".m-card")
+          .forEach((c) => c.classList.remove("on"));
+        el.classList.add("on");
+        S.moment = el.dataset.moment;
+      }
+
+      function toggleE(el) {
+        const e = el.dataset.e;
+        if (el.classList.contains("on")) {
+          el.classList.remove("on");
+          S.etats = S.etats.filter((x) => x !== e);
+        } else {
+          el.classList.add("on");
+          S.etats.push(e);
+        }
+      }
+
+      function updateInt(v) {
+        S.intensite = parseInt(v);
+        document.getElementById("int-val").textContent = v;
+        document.getElementById("int-desc").textContent = INT_LABELS[v];
+      }
+
+      // ══════════════════════════════════════
+      // SCREEN 3: GENERATE
+      // ══════════════════════════════════════
+      async function generate() {
+        if (!S.moment) {
+          showToast("Choisis d'abord ton moment ✦");
+          return;
+        }
+
+        const ctxEl = document.getElementById("ctx-input");
+        S.contexte = (ctxEl ? ctxEl.value : "").trim();
+
+        // Disable regen button
+        const regenBtn = document.getElementById("btn-regen");
+        if (regenBtn) regenBtn.disabled = true;
+
+        goTo("s-message");
+        document.getElementById("loader").style.display = "flex";
+        document.getElementById("msg-card").style.display = "none";
+        document.getElementById("bottom-row").style.display = "none";
+
+        try {
+          const res = await fetch("/api/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: S.name,
+              moment: S.moment,
+              etats: S.etats,
+              intensite: S.intensite,
+              contexte: S.contexte,
+            }),
+          });
+
+          if (!res.ok) {
+            let detail = "";
+            try {
+              const errJson = await res.json();
+              detail = errJson?.error || errJson?.detail || "";
+            } catch {
+              detail = "";
+            }
+            throw new Error(detail ? `API: ${detail}` : `API: ${res.status}`);
+          }
+          const data = await res.json();
+          showMsg(data.message, data.category || S.moment);
+        } catch (err) {
+          console.error(err);
+          showToast("Mode hors-ligne: message prédéfini");
+          const fallback = getFallback();
+          showMsg(fallback, S.moment);
+        }
+      }
+
+      function showMsg(text, category) {
+        document.getElementById("loader").style.display = "none";
+
+        const cat = CAT_LABELS[category] || CAT_LABELS[S.moment];
+        document.getElementById("msg-cat").textContent = cat;
+        document.getElementById("msg-txt").textContent = text;
+        S.currentMsg = text;
+
+        const card = document.getElementById("msg-card");
+        card.style.display = "block";
+        card.style.animation = "none";
+        card.offsetHeight;
+        card.style.animation = "";
+
+        document.getElementById("bottom-row").style.display = "flex";
+        const regenBtn = document.getElementById("btn-regen");
+        if (regenBtn) regenBtn.disabled = false;
+      }
+
+      function getFallback() {
+        const fb = {
+          matin: `${S.name}, commence cette journée doucement. Tu portes déjà en toi ce qu'il faut pour la traverser.`,
+          journee: `${S.name}, si tout va trop vite, ralentis un instant. Tu n'es pas obligée de tout gérer parfaitement.`,
+          soir: `${S.name}, tu as tenu jusqu'au bout aujourd'hui. Repose-toi — tu l'as mérité.`,
+          crise: `${S.name}, ce moment est difficile, mais il ne définit pas tout. Reste calme — tu vas traverser ça.`,
+        };
+        return fb[S.moment] || fb.matin;
+      }
+
+      // ══════════════════════════════════════
+      // ACTIONS
+      // ══════════════════════════════════════
+      function copyMsg() {
+        if (!S.currentMsg) return;
+        const btn = document.getElementById("btn-copy");
+        navigator.clipboard
+          .writeText(S.currentMsg)
+          .then(() => {
+            btn.textContent = "Copié ✓";
+            btn.classList.add("copied");
+            showToast("Message copié ✓");
+            setTimeout(() => {
+              btn.textContent = "Copier";
+              btn.classList.remove("copied");
+            }, 2200);
+          })
+          .catch(() => showToast("Sélectionne le texte pour copier"));
+      }
+
+      function saveMsg() {
+        if (!S.currentMsg) return;
+        if (S.saved.includes(S.currentMsg)) {
+          showToast("Déjà sauvegardé");
+          return;
+        }
+        S.saved.unshift(S.currentMsg);
+        renderSaved();
+        showToast("Sauvegardé ✦");
+      }
+
+      function toggleSaved() {
+        S.savedVisible = !S.savedVisible;
+        document.getElementById("saved-section").style.display = S.savedVisible
+          ? "block"
+          : "none";
+        document.getElementById("saved-toggle").firstChild.textContent =
+          S.savedVisible ? "Masquer sauvegardés (" : "Voir sauvegardés (";
+      }
+
+      function renderSaved() {
+        const n = S.saved.length;
+        const toggleBtn = document.getElementById("saved-toggle");
+        toggleBtn.style.display = n > 0 ? "inline" : "none";
+        document.getElementById("saved-ct").textContent = n;
+        document.getElementById("saved-count-2").textContent =
+          n + " message" + (n > 1 ? "s" : "");
+
+        const list = document.getElementById("saved-list");
+        list.innerHTML = S.saved
+          .map(
+            (m) => `
+    <div class="saved-item" onclick="reuseMsg(this)" data-msg="${m.replace(/"/g, "&quot;")}">${m}</div>
+  `,
+          )
+          .join("");
+
+        if (S.savedVisible) {
+          document.getElementById("saved-section").style.display = "block";
+        }
+      }
+
+      function reuseMsg(el) {
+        const msg = el.dataset.msg;
+        document.getElementById("msg-txt").textContent = msg;
+        S.currentMsg = msg;
+        window.scrollTo(0, 0);
+        showToast("Message rechargé");
+      }
+
+      function newSession() {
+        // Réinitialiser
+        S.etats = [];
+        S.contexte = "";
+        S.currentMsg = "";
+        document
+          .querySelectorAll(".e-pill")
+          .forEach((p) => p.classList.remove("on"));
+        const ctxEl = document.getElementById("ctx-input");
+        if (ctxEl) ctxEl.value = "";
+        document.getElementById("int-slider").value = 3;
+        updateInt(3);
+        goTo("s-welcome");
+      }
+
+      // ══════════════════════════════════════
+      // TOAST
+      // ══════════════════════════════════════
+      let toastTimer;
+      function showToast(msg) {
+        const t = document.getElementById("toast");
+        clearTimeout(toastTimer);
+        t.textContent = msg;
+        t.classList.add("show");
+        toastTimer = setTimeout(() => t.classList.remove("show"), 2600);
+      }
+    </script>
+  </body>
+</html>
